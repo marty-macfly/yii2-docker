@@ -1,5 +1,7 @@
 FROM yiisoftware/yii2-php:7.2-apache
 RUN apt-get -y update
+# Cache & Session support
+RUN pecl install redis && docker-php-ext-enable redis
 # Yaml
 RUN apt-get install -y --no-install-recommends libyaml-dev libyaml-0-2 && pecl install yaml-2.0.0 && docker-php-ext-enable yaml && apt-get remove -y libyaml-dev
 # pcntl
@@ -8,13 +10,11 @@ RUN docker-php-ext-install pcntl
 RUN rm -f /usr/local/etc/php/conf.d/docker-php-ext-exif.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-gd.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-imagick.ini \
-    /usr/local/etc/php/conf.d/docker-php-ext-intl.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-mongodb.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-pcntl.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-pdo_mysql.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-pdo_pgsql.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-soap.ini \
-    /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-zip.ini
 COPY files/php.ini /usr/local/etc/php/conf.d/base.ini
 # Set default php.ini config variables (can be override at runtime)
