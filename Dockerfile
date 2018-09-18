@@ -6,6 +6,8 @@ RUN pecl install redis && docker-php-ext-enable redis
 RUN apt-get install -y --no-install-recommends libyaml-dev libyaml-0-2 && pecl install yaml-2.0.0 && docker-php-ext-enable yaml && apt-get remove -y libyaml-dev
 # pcntl
 RUN docker-php-ext-install pcntl
+# Clean apt
+RUN apt-get autoremove -y
 # Disable extension should be enable by user if needed
 RUN rm -f /usr/local/etc/php/conf.d/docker-php-ext-exif.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-gd.ini \
