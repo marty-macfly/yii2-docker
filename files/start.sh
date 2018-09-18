@@ -1,6 +1,7 @@
 #!/bin/bash
-[ -n "${DB_TYPE}" ] && /wait-for-it.sh -s ${DB_HOST}:${DB_PORT}
+[ -n "${DB_TYPE}" -a  -n "${DB_HOST}" -a -n "${DB_PORT}" ] && /wait-for-it.sh -s ${DB_HOST}:${DB_PORT}
 [ -n "${REDIS_HOST}" ] && /wait-for-it.sh -t 0 -s ${REDIS_HOST}:${REDIS_PORT:-6379}
+[ -n "${ELASTICSEARCH_HOST}" ] && /wait-for-it.sh -s ${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT:-9200}
 
 # Optimise opcache.max_accelerated_files, if settings is too small
 nb_files=$(find ~www-data -type f -name '*.php' -print | wc -l)
