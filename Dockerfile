@@ -1,4 +1,5 @@
 FROM yiisoftware/yii2-php:7.2-apache
+RUN apt-get -y update
 # Yaml
 RUN apt-get install -y --no-install-recommends libyaml-dev libyaml-0-2 && pecl install yaml-2.0.0 && docker-php-ext-enable yaml && apt-get remove -y libyaml-dev
 # pcntl
