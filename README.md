@@ -12,6 +12,7 @@ List of already available module (the one with a (`*`) are loaded by default):
 * imagick
 * intl (`*`)
 * mongodb
+* pcntl
 * pdo_mysql
 * pdo_pgsql
 * soap
