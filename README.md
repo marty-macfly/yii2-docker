@@ -1,16 +1,45 @@
 # Yii2 docker image
 
-Inherit official [yii2-docker](https://github.com/yiisoft/yii2-docker) and based on the php apache debian version.
+Inherit official [yii2-docker](https://github.com/yiisoft/yii2-docker) and based on the PHP Apache Debian version.
+
+# Entry-point
+
+Entry-point script can run:
+* start **Apache HTTPD** server (default behavior)
+* **cron daemon** with environment variable properly setup
+* [Yii CLI application](https://www.yiiframework.com/doc/guide/2.0/en/tutorial-console) with your custom arguments
+
+The entry-point script is also providing those helpers:
+
+## Wait for a list of service availability
+
+Before running your service you may be need to wait for other to be up and listening (example wait for you database server to be up and running on port 3306). You can provide the environment variable `WAIT_FOR_IT_LIST` with the list of service to test before starting up the application.
+
+If you want to wait for a mysql server on port 3306 and an SMTP server on port 25, just do:
+
+```
+WAIT_FOR_IT_LIST=mysql:3306,smtp:25
+```
+
+## Database migration
+
+May be you want you container to do database schema migration before starting up, just set `YII_DB_MIGRATE` to `true` for more detail refer to [Yii2 databse migration](https://www.yiiframework.com/doc/guide/2.0/en/db-migrations).
+
+## Rbac static role and permissions management
+
+If you want to create your list of static role and permission on your authManager, you can set `YII_RBAC_MIGRATE` to `true` for more detail refer to [macfly/yii2-rbac-cli](https://github.com/marty-macfly/yii2-rbac-cli).
 
 # PHP module
 
-List of already available module (the one with a (`*`) are loaded by default):
+List of already embed modules (the one with a (`*`) are loaded by default):
 
 * bcmath (`*`)
 * exif
 * gd
 * imagick
 * intl (`*`)
+* gearman
+* gmp (`*`)
 * mongodb
 * pcntl
 * pdo_mysql
