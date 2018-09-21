@@ -7,7 +7,6 @@ if [ ${nb_files} -gt ${PHP_OPCACHE_MAX_ACCELERATED_FILES} ]; then
 	export PHP_OPCACHE_MAX_ACCELERATED_FILES=${nb_files}
 fi
 
-#su www-data -s /bin/bash -c 'mkdir -p runtime/logs'
 tail -F /app/runtime/logs/*.log /var/log/cron/*.log 2>/dev/null &
 
 # Loop on WAIT_FOR_IT_LIST
@@ -34,7 +33,8 @@ else
 fi
 
 if [ "${1}" = "yii" ]; then
-	su www-data -s /bin/bash -c "php ${@}"
+	cmd="php ${@}"
+	su www-data -s /bin/bash -c "${cmd}"
 elif [ "${1}" = "cron" ]; then
 	# Add current environment to /etc/environment so it will be available for job in cron
 	env > /etc/environment
