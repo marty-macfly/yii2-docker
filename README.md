@@ -63,17 +63,18 @@ You can override some PHP configuration setting by defining the following enviro
 
 ## General confguration
 
-* **PHP_TIMEZONE**: timezone (default: `Europe/Paris`)
-* **PHP_UPLOAD_MAX_FILESIZE**: (default: `2m`)
-* **PHP_POST_MAX_SIZE**: (default: `8m`)
-* **PHP_MEMORY_LIMIT**: (default: `64m`)
-* **PHP_REALPATH_CACHE_SIZE**: (default: `256k`)
-* **PHP_REALPATH_CACHE_TTL**: (default: `3600`)
+* **PHP_TIMEZONE**: [date.timezone](http://php.net/manual/en/datetime.configuration.php#ini.date.timezone) (default: `Europe/Paris`)
+* **PHP_UPLOAD_MAX_FILESIZE**: [upload_max_filesize](http://php.net/manual/en/ini.core.php#ini.upload-max-filesize) (default: `2m`)
+* **PHP_POST_MAX_SIZE**: [post_max_size](http://php.net/manual/en/ini.core.php#ini.post-max-size) (default: `8m`)
+* **PHP_MEMORY_LIMIT**: [memory_limit](http://php.net/manual/en/ini.core.php#ini.memory-limit) (default: `64m`)
+* **PHP_REALPATH_CACHE_SIZE**: [realpath_cache_size](http://php.net/manual/en/ini.core.php#ini.realpath-cache-size) (default: `256k`)
+* **PHP_REALPATH_CACHE_TTL**: [realpath_cache_ttl](http://php.net/manual/en/ini.core.php#ini.realpath-cache-ttl) (default: `3600`)
 
 ## Opcache configuration
 
-* **PHP_OPCACHE_ENABLE**:  enable Opcache (default: `1` = On)
-* **PHP_OPCACHE_ENABLE_CLI**: enable opcache for PHP in CLI (default: `1` = On)
-* **PHP_OPCACHE_MEMORY**: (default: `64m`)
-* **PHP_OPCACHE_VALIDATE_TIMESTAMP**: (default : `0` = Off)
-* **PHP_OPCACHE_MAX_ACCELERATED_FILES**: (default: `7000` adjusted at runtime by the start script)
+* **PHP_OPCACHE_ENABLE**: [opcache.enable](http://php.net/manual/en/opcache.configuration.php#ini.opcache.enable) enable Opcache (default: `1` = On)
+* **PHP_OPCACHE_ENABLE_CLI**: [opcache.enable_cli](http://php.net/manual/en/opcache.configuration.php#ini.opcache.enable-cli) enable opcache for PHP in CLI (default: `1` = On)
+* **PHP_OPCACHE_MEMORY**: [opcache.memory_consumption](http://php.net/manual/en/opcache.configuration.php#ini.opcache.memory-consumption) (default: `64m`)
+* **PHP_OPCACHE_VALIDATE_TIMESTAMP**: [opcache.validate_timestamps](http://php.net/manual/en/opcache.configuration.php#ini.opcache.validate-timestamps) (default: `0` = Off)
+* **PHP_OPCACHE_REVALIDATE_FREQ**: [opcache.revalidate_freq](http://php.net/manual/en/opcache.configuration.php#ini.opcache.revalidate-freq) (default: `600` seconds)
+* **PHP_OPCACHE_MAX_ACCELERATED_FILES**: [opcache.max_accelerated_files](http://php.net/manual/en/opcache.configuration.php#ini.opcache.max-accelerated-files) (default: `7000` adjusted at runtime by the start script)
