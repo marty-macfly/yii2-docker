@@ -9,11 +9,13 @@ fi
 
 # Create Yii temporary directory
 for dir in runtime web/runtime; do
-	echo "${dir}"
-	mkdir -p "${dir}" && chmod 777 "${dir}"
+	if [ ! -d "${dir}" ]; then
+		echo "Create directory: ${dir}"
+		mkdir -p "${dir}" && chmod 777 "${dir}"
+	fi
 done
 
-tail -F /app/runtime/logs/*.log /var/log/cron/*.log 2>/dev/null &
+tail -F runtime/logs/*.log /var/log/cron/*.log 2>/dev/null &
 
 # Loop on WAIT_FOR_IT_LIST
 if [ -n "${WAIT_FOR_IT_LIST}" ]; then
