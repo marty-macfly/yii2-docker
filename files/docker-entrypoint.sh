@@ -7,6 +7,12 @@ if [ ${nb_files} -gt ${PHP_OPCACHE_MAX_ACCELERATED_FILES} ]; then
 	export PHP_OPCACHE_MAX_ACCELERATED_FILES=${nb_files}
 fi
 
+# Create Yii temporary directory
+for dir in runtime web/runtime; do
+	echo "${dir}"
+	mkdir -p "${dir}" && chmod 777 "${dir}"
+done
+
 tail -F /app/runtime/logs/*.log /var/log/cron/*.log 2>/dev/null &
 
 # Loop on WAIT_FOR_IT_LIST
