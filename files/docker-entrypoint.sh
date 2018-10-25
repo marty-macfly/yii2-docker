@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Optimise opcache.max_accelerated_files, if settings is too small
 nb_files=$(find ~www-data -type f -name '*.php' -print | wc -l)
@@ -14,8 +14,6 @@ for dir in runtime web/runtime; do
 		mkdir -p "${dir}" && chmod 777 "${dir}"
 	fi
 done
-
-tail -F runtime/logs/*.log /var/log/cron/*.log &
 
 # Loop on WAIT_FOR_IT_LIST
 if [ -n "${WAIT_FOR_IT_LIST}" ]; then
@@ -44,9 +42,13 @@ if [ "${1}" = "yii" ]; then
 	cmd="php ${@}"
 	su www-data -s /bin/bash -c "${cmd}"
 elif [ "${1}" = "cron" ]; then
+	tail -F /var/log/cron/*.log 2>/dev/null &
 	# Add current environment to /etc/environment so it will be available for job in cron
 	env > /etc/environment
+	sleep 60
 	exec /usr/sbin/cron -f
 else
 	exec "apache2-foreground"
 fi
+
+sleep 3600
