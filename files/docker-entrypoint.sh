@@ -15,7 +15,7 @@ for dir in runtime web/runtime; do
 	fi
 done
 
-tail -F runtime/logs/*.log /var/log/cron/*.log 2>/dev/null &
+tail -F runtime/logs/*.log /var/log/cron/*.log &
 
 # Loop on WAIT_FOR_IT_LIST
 if [ -n "${WAIT_FOR_IT_LIST}" ]; then
