@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Optimise opcache.max_accelerated_files, if settings is too small
 nb_files=$(find ~www-data -type f -name '*.php' -print | wc -l)
@@ -45,10 +45,7 @@ elif [ "${1}" = "cron" ]; then
 	tail -F /var/log/cron/*.log 2>/dev/null &
 	# Add current environment to /etc/environment so it will be available for job in cron
 	env > /etc/environment
-	sleep 60
 	exec /usr/sbin/cron -f
 else
 	exec "apache2-foreground"
 fi
-
-sleep 3600
