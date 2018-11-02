@@ -8,8 +8,12 @@ fi
 # Enable extension by ENV variable
 if [ -n "${PHP_ENABLE_EXTENSION}" ] ; then
 	for extension in $(echo "${PHP_ENABLE_EXTENSION}" | sed -e 's/,/ /g'); do
-    	docker-php-ext-enable ${extension}
-    	echo "Enabled ${extension}"
+    	if docker-php-ext-enable ${extension}; then
+			echo "Enabled ${extension}"
+		else
+		    echo "Failed to enable ${extension}"
+		fi
+		echo ""
 	done
 fi
 
