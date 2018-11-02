@@ -10,6 +10,8 @@ RUN apt-get install -y --no-install-recommends libgmp-dev libgmpxx4ldbl && docke
 RUN apt-get install -y --no-install-recommends git unzip libgearman-dev libgearman7 && git clone https://github.com/wcgallego/pecl-gearman.git && cd pecl-gearman && phpize && ./configure && make && make install && cd - && rm -rf pecl-gearman && docker-php-ext-enable gearman && apt-get remove -y libgearman-dev
 # pcntl
 RUN docker-php-ext-install pcntl
+# xdebug
+RUN pecl install xdebug-2.6.1
 # Mongodb with SSL
 RUN apt-get install -y --no-install-recommends libssl1.0.2 libssl-dev && pecl install mongodb && apt-get remove -y libssl-dev
 # Add cron
