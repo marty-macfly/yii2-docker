@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Enable xdebug by ENV variable (compatibility with upstream)
+if [ 0 -ne "${PHP_ENABLE_XDEBUG:-0}" ] ; then
+    PHP_ENABLE_EXTENSION="${PHP_ENABLE_EXTENSION},xdebug"
+fi
+
+# Enable extension by ENV variable
+if [ -n "${PHP_ENABLE_EXTENSION}" ] ; then
+	for extension in $(echo "${PHP_ENABLE_EXTENSION}" | sed -e 's/,/ /g'); do
+    	docker-php-ext-enable ${extension}
+    	echo "Enabled ${extension}"
+	done
+fi
+
 # Optimise opcache.max_accelerated_files, if settings is too small
 nb_files=$(find ~www-data -type f -name '*.php' -print | wc -l)
 if [ ${nb_files} -gt ${PHP_OPCACHE_MAX_ACCELERATED_FILES} ]; then
