@@ -18,19 +18,16 @@ if [ -n "${PHP_ENABLE_EXTENSION}" ] ; then
 fi
 
 # Optimise opcache.max_accelerated_files, if settings is too small
-nb_files=$(find ~www-data -type f -name '*.php' -print | wc -l)
+nb_files=$(find . -type f -name '*.php' -print | wc -l)
 if [ ${nb_files} -gt ${PHP_OPCACHE_MAX_ACCELERATED_FILES} ]; then
 	echo "Change PHP_OPCACHE_MAX_ACCELERATED_FILES from ${PHP_OPCACHE_MAX_ACCELERATED_FILES} to ${nb_files}"
 	export PHP_OPCACHE_MAX_ACCELERATED_FILES=${nb_files}
 fi
 
-# Create Yii temporary directory
-for dir in runtime web/runtime; do
-	if [ ! -d "${dir}" ]; then
-		echo "Create directory: ${dir}"
-		mkdir -p "${dir}" && chmod 777 "${dir}"
-	fi
-done
+# Install dev dependencies of composer for test and dev, or if composer was not run before
+if [ "${YII_ENV}" = "test" -o "${YII_ENV}" = "dev" -o -z "$(ls -A vendor)" ]; then
+    composer update
+fi
 
 # Loop on WAIT_FOR_IT_LIST
 if [ -n "${WAIT_FOR_IT_LIST}" ]; then
