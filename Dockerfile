@@ -11,7 +11,7 @@ RUN apt-get install -y --no-install-recommends git unzip libgearman-dev libgearm
 # pcntl
 RUN docker-php-ext-install pcntl
 # Mongodb with SSL
-RUN apt-get install -y --no-install-recommends libssl1.0.2 libssl-dev && pecl install mongodb && apt-get remove -y libssl-dev
+RUN apt-get install -y --no-install-recommends libssl1.0.2 libssl-dev && pecl uninstall mongodb && pecl install mongodb && apt-get remove -y libssl-dev
 # Xdebug
 RUN pecl install xdebug && docker-php-ext-enable xdebug
 # Sockets
