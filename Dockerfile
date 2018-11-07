@@ -14,6 +14,8 @@ RUN docker-php-ext-install pcntl
 RUN apt-get install -y --no-install-recommends libssl1.0.2 libssl-dev && pecl install mongodb && apt-get remove -y libssl-dev
 # Xdebug
 RUN pecl install xdebug && docker-php-ext-enable xdebug
+# Sockets
+RUN docker-php-ext-install sockets
 # Add cron
 RUN apt-get install -y --no-install-recommends cron \
     && rm -f /etc/cron.*/* \
@@ -30,6 +32,7 @@ RUN rm -f /usr/local/etc/php/conf.d/docker-php-ext-exif.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-pdo_mysql.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-pdo_pgsql.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-soap.ini \
+    /usr/local/etc/php/conf.d/docker-php-ext-sockets.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-zip.ini
 COPY files/php.ini /usr/local/etc/php/conf.d/base.ini
