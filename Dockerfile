@@ -55,4 +55,5 @@ COPY files/000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY files/docker-entrypoint.sh /
 COPY files/wait-for-it.sh /
 RUN chmod +x /*.sh
+WORKDIR /app
 ENTRYPOINT ["/docker-entrypoint.sh"]
