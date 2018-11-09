@@ -1,5 +1,9 @@
 FROM yiisoftware/yii2-php:7.2-apache
-RUN apt-get -y update
+# Fix upstream link error
+RUN ([ -d /var/www/html ] && rm -rf /var/www/html && ln -s /app/web/ /var/www/html) || true
+# Update embded package
+RUN apt-get -y update \
+    && apt-get -y upgrade
 # Cache & Session support
 RUN pecl install redis && docker-php-ext-enable redis
 # Yaml
