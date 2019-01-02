@@ -1,11 +1,11 @@
 #!/bin/bash -x
 
+# Set default username if not override
+USER_NAME="${USER_NAME:-default}"
+
 # Insert username into pwd
 if ! whoami &> /dev/null; then
   if [ -w /etc/passwd ]; then
-	if [ -n "${USER_NAME}"]; then
-		USER_NAME="default"
-	fi
     echo "${USER_NAME}:x:$(id -u):0:${USER_NAME} user:${HOME}:/sbin/bash" >> /etc/passwd
 	echo "USER_NAME: ${USER_NAME}"
   fi
@@ -18,7 +18,6 @@ echo "APACHE_RUN_USER: ${APACHE_RUN_USER}"
 if [ -n "${TZ}" ]; then
 	ln -snf "/usr/share/zoneinfo/$TZ" "/etc/localtime"
 	echo "$TZ" > /etc/timezone
-
 	if [ -n "${PHP_TIMEZONE}"]; then
 		PHP_TIMEZONE="${TZ}"
 	fi
