@@ -65,6 +65,10 @@ You can enable extension at runtime with the environment variable `PHP_ENABLE_EX
 PHP_ENABLE_EXTENSION=gd,exif
 ```
 
+# Apache HTTPD configuration
+
+* **REMOTE_IP_INTERNAL_PROXY**: Set `RemoteIPInternalProxy` directive of the [remote_ip module](https://httpd.apache.org/docs/trunk/mod/mod_remoteip.html)
+
 # PHP configuration
 
 You can override some PHP configuration setting by defining the following environment variable:

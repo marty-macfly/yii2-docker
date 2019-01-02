@@ -4,6 +4,13 @@ RUN ([ -d /var/www/html ] && rm -rf /var/www/html && ln -s /app/web/ /var/www/ht
 # Update embded package
 RUN apt-get -y update \
     && apt-get -y upgrade
+# Apache module
+RUN a2enmod remoteip
+ENV REMOTE_IP_INTERNAL_PROXY 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+# Hide apache version
+RUN sed -i "s/^ServerTokens OS$/ServerTokens Prod/g" /etc/apache2/conf-available/security.conf
+# apache configuration
+COPY files/000-default.conf /etc/apache2/sites-available/000-default.conf
 # Cache & Session support
 RUN pecl install redis && docker-php-ext-enable redis
 # Yaml
@@ -55,7 +62,6 @@ ENV PHP_OPCACHE_MEMORY 64
 ENV PHP_OPCACHE_VALIDATE_TIMESTAMP 0
 ENV PHP_OPCACHE_REVALIDATE_FREQ 600
 ENV PHP_OPCACHE_MAX_ACCELERATED_FILES 7000
-COPY files/000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY files/docker-entrypoint.sh /
 COPY files/wait-for-it.sh /
 RUN chmod +x /*.sh

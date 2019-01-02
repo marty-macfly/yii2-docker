@@ -25,7 +25,7 @@ if [ ${nb_files} -gt ${PHP_OPCACHE_MAX_ACCELERATED_FILES} ]; then
 fi
 
 # Install dev dependencies of composer for test and dev, or if composer was not run before
-if [ "${YII_ENV}" = "test" -o "${YII_ENV}" = "dev" -o -z "$(ls -A vendor)" ]; then
+if [ "${YII_ENV}" = "test" -o "${YII_ENV}" = "dev" ] || [ -f composer.json -a -z "$(ls -A vendor 2>/dev/null)" ]; then
     composer update
 fi
 
