@@ -7,8 +7,12 @@ RUN apt-get -y update \
 # Apache module
 RUN a2enmod remoteip
 ENV REMOTE_IP_INTERNAL_PROXY 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+# Disable useless configuration
+RUN a2disconf serve-cgi-bin
 # Hide apache version
 RUN sed -i "s/^ServerTokens OS$/ServerTokens Prod/g" /etc/apache2/conf-available/security.conf
+RUN echo "ServerName __default__" > /etc/apache2/conf-available/servername.conf \
+    && a2enconf servername
 # apache configuration
 COPY files/000-default.conf /etc/apache2/sites-available/000-default.conf
 # Cache & Session support
