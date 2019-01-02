@@ -1,4 +1,22 @@
-#!/bin/bash
+#!/bin/bash -x
+
+# Insert username into pwd
+if ! whoami &> /dev/null; then
+  if [ -w /etc/passwd ]; then
+    echo "${USER_NAME:-default}:x:$(id -u):0:${USER_NAME:-default} user:${HOME}:/sbin/bash" >> /etc/passwd
+  fi
+fi
+
+APACHE_RUN_USER=${USER_NAME:-default}
+
+# Set the proper timezone
+if [ -n "${TZ}" ]; then
+	ln -snf "/usr/share/zoneinfo/$TZ" "/etc/localtime"
+	echo "$TZ" > /etc/timezone
+	if [ -n "${PHP_TIMEZONE}"]; then
+		PHP_TIMEZONE="${TZ}"
+	fi
+fi
 
 # Enable xdebug by ENV variable (compatibility with upstream)
 if [ 0 -ne "${PHP_ENABLE_XDEBUG:-0}" ] ; then
@@ -38,12 +56,12 @@ fi
 
 # Do database migration
 if [ -n "${YII_DB_MIGRATE}" -a "${YII_DB_MIGRATE}" = "true" ]; then
-	su www-data -s /bin/bash -c 'php yii migrate/up --interactive=0'
+	php yii migrate/up --interactive=0
 fi
 
 # Do rbac migration (add/Update/delete rbac permissions/roles)
 if [ -n "${YII_RBAC_MIGRATE}" -a "${YII_RBAC_MIGRATE}" = "true" ]; then
-    su www-data -s /bin/bash -c 'php yii rbac/load rbac.yml'
+    php yii rbac/load rbac.yml
 fi
 
 if [ -n "${1}" ]; then
@@ -53,13 +71,9 @@ else
 fi
 
 if [ "${1}" = "yii" ]; then
-	cmd="php ${@}"
-	su www-data -s /bin/bash -c "${cmd}"
+	exec php ${@}
 elif [ "${1}" = "cron" ]; then
-	tail -F /var/log/cron/*.log 2>/dev/null &
-	# Add current environment to /etc/environment so it will be available for job in cron
-	env > /etc/environment
-	exec /usr/sbin/cron -f
+	exec /usr/local/bin/supercronic /etc/cron.d/*
 else
 	exec "apache2-foreground"
 fi

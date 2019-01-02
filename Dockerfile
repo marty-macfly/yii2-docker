@@ -4,15 +4,28 @@ RUN ([ -d /var/www/html ] && rm -rf /var/www/html && ln -s /app/web/ /var/www/ht
 # Update embded package
 RUN apt-get -y update \
     && apt-get -y upgrade
-# Apache module
+# Apache modules
 RUN a2enmod remoteip
+RUN sed -i 's/%h/%a/g' /etc/apache2/apache2.conf
+ENV REMOTE_IP_HEADER X-Forwarded-For
+ENV REMOTE_IP_TRUSTED_PROXY 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
 ENV REMOTE_IP_INTERNAL_PROXY 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
 # Disable useless configuration
-RUN a2disconf serve-cgi-bin
+RUN a2disconf serve-cgi-bin other-vhosts-access-log
 # Hide apache version
 RUN sed -i "s/^ServerTokens OS$/ServerTokens Prod/g" /etc/apache2/conf-available/security.conf
+# Avoid warning at startup
 RUN echo "ServerName __default__" > /etc/apache2/conf-available/servername.conf \
     && a2enconf servername
+# Prepare Apache to be run has non root user
+RUN mkdir -p /var/lock/apache2 \
+    && chgrp -R 0 /run /var/lock/apache2 /var/log/apache2 \
+    && chmod -R g=u /etc/passwd /run /var/lock/apache2 /var/log/apache2
+RUN rm -f /var/log/apache2/*.log \
+    && ln -s /proc/self/fd/2 /var/log/apache2/error.log \
+    && ln -s /proc/self/fd/1 /var/log/apache2/access.log
+RUN sed -i -e 's/80/8080/g' -e 's/443/8443/g' /etc/apache2/ports.conf
+EXPOSE 8080 8443
 # apache configuration
 COPY files/000-default.conf /etc/apache2/sites-available/000-default.conf
 # Cache & Session support
@@ -31,12 +44,24 @@ RUN apt-get install -y --no-install-recommends libssl1.0.2 libssl-dev && pecl un
 RUN pecl install xdebug && docker-php-ext-enable xdebug
 # Sockets
 RUN docker-php-ext-install sockets
-# Add cron
-RUN apt-get install -y --no-install-recommends cron \
-    && rm -f /etc/cron.*/* \
-    && mkdir -p /var/log/cron
 # Clean apt
 RUN apt-get autoremove -y
+# Set default timezone
+ENV TZ Europe/Paris
+RUN chgrp -R 0 /etc/timezone /etc/localtime \
+    && chmod -R g=u /etc/timezone /etc/localtime
+# Add cron use supercronic (https://github.com/aptible/supercronic)
+ENV SUPERCRONIC_VERSION=0.1.6
+ENV SUPERCRONIC_SHA1SUM=c3b78d342e5413ad39092fd3cfc083a85f5e2b75
+#Create log directory
+RUN mkdir -p /etc/cron.d /var/log/cron \        
+    && chgrp -R 0 /etc/cron.d /var/log/cron \
+    && chmod -R g=u /etc/cron.d /var/log/cron
+RUN curl -sSL "https://github.com/aptible/supercronic/releases/download/v${SUPERCRONIC_VERSION}/supercronic-linux-amd64" > "/usr/local/bin/supercronic" \
+ && echo "${SUPERCRONIC_SHA1SUM}" "/usr/local/bin/supercronic" | sha1sum -c - \
+ && chmod +x "/usr/local/bin/supercronic"
+# Add composer exec right to everyone
+RUN chmod +x /usr/local/bin/composer
 # Disable extension should be enable by user if needed
 RUN rm -f /usr/local/etc/php/conf.d/docker-php-ext-exif.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-gd.ini \
@@ -52,7 +77,6 @@ RUN rm -f /usr/local/etc/php/conf.d/docker-php-ext-exif.ini \
     /usr/local/etc/php/conf.d/docker-php-ext-zip.ini
 COPY files/php.ini /usr/local/etc/php/conf.d/base.ini
 # Set default php.ini config variables (can be override at runtime)
-ENV PHP_TIMEZONE Europe/Paris
 ENV PHP_UPLOAD_MAX_FILESIZE 2m
 ENV PHP_POST_MAX_SIZE 8m
 ENV PHP_MAX_EXECUTION_TIME 30
@@ -70,4 +94,10 @@ COPY files/docker-entrypoint.sh /
 COPY files/wait-for-it.sh /
 RUN chmod +x /*.sh
 WORKDIR /app
+USER 1001
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
+
+
+
+

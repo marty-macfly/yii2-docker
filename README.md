@@ -1,6 +1,11 @@
 # Yii2 docker image
 
 Inherit official [yii2-docker](https://github.com/yiisoft/yii2-docker) and based on the PHP Apache Debian version.
+
+Change compare to upstream:
+
+* Bind on port `8080` instead of `80`
+* Doesn't run as root compatible with openshift security policy
  
 # Entry-point
 
@@ -36,15 +41,16 @@ List of already embed modules (the one with a (`*`) are loaded by default):
 * bcmath (`*`)
 * exif
 * gd
-* imagick
-* intl (`*`)
 * gearman
 * gmp (`*`)
+* imagick
+* intl (`*`)
 * mongodb
 * pcntl
 * pdo_mysql
 * pdo_pgsql
 * soap
+* sockets
 * sodium (`*`)
 * yaml (`*`)
 * xdebug
@@ -64,10 +70,15 @@ You can enable extension at runtime with the environment variable `PHP_ENABLE_EX
 ```
 PHP_ENABLE_EXTENSION=gd,exif
 ```
+# System configuration
+
+* **TZ**: System timezone will by application for cron and logs (default: `Europe/Paris`)
 
 # Apache HTTPD configuration
 
-* **REMOTE_IP_INTERNAL_PROXY**: Set `RemoteIPInternalProxy` directive of the [remote_ip module](https://httpd.apache.org/docs/trunk/mod/mod_remoteip.html)
+* **REMOTE_IP_HEADER**: Set `RemoteIPHeader` directive of the [remote_ip module](https://httpd.apache.org/docs/trunk/mod/mod_remoteip.html) (default: `X-Forwarded-For`)
+* **REMOTE_IP_TRUSTED_PROXY**: Set `RemoteIPtrustedProxy` directive of the [remote_ip module](https://httpd.apache.org/docs/trunk/mod/mod_remoteip.html) (default: `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16`)
+* **REMOTE_IP_INTERNAL_PROXY**: Set `RemoteIPInternalProxy` directive of the [remote_ip module](https://httpd.apache.org/docs/trunk/mod/mod_remoteip.html) (default: `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16`)
 
 # PHP configuration
 
@@ -75,7 +86,7 @@ You can override some PHP configuration setting by defining the following enviro
 
 ## General confguration
 
-* **PHP_TIMEZONE**: [date.timezone](http://php.net/manual/en/datetime.configuration.php#ini.date.timezone) (default: `Europe/Paris`)
+* **PHP_TIMEZONE**: [date.timezone](http://php.net/manual/en/datetime.configuration.php#ini.date.timezone) (default: `$TZ`)
 * **PHP_UPLOAD_MAX_FILESIZE**: [upload_max_filesize](http://php.net/manual/en/ini.core.php#ini.upload-max-filesize) (default: `2m`)
 * **PHP_POST_MAX_SIZE**: [post_max_size](http://php.net/manual/en/ini.core.php#ini.post-max-size) (default: `8m`)
 * **PHP_MAX_EXECUTION_TIME**: [max_execution_time](http://php.net/manual/en/info.configuration.php#ini.max-execution-time) (default: `30`)
