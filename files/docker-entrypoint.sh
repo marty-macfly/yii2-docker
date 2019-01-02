@@ -3,20 +3,29 @@
 # Insert username into pwd
 if ! whoami &> /dev/null; then
   if [ -w /etc/passwd ]; then
-    echo "${USER_NAME:-default}:x:$(id -u):0:${USER_NAME:-default} user:${HOME}:/sbin/bash" >> /etc/passwd
+	if [ -n "${USER_NAME}"]; then
+		USER_NAME="default"
+	fi
+    echo "${USER_NAME}:x:$(id -u):0:${USER_NAME} user:${HOME}:/sbin/bash" >> /etc/passwd
+	echo "USER_NAME: ${USER_NAME}"
   fi
 fi
 
-APACHE_RUN_USER=${USER_NAME:-default}
+APACHE_RUN_USER="${USER_NAME}"
+echo "APACHE_RUN_USER: ${APACHE_RUN_USER}"
 
 # Set the proper timezone
 if [ -n "${TZ}" ]; then
 	ln -snf "/usr/share/zoneinfo/$TZ" "/etc/localtime"
 	echo "$TZ" > /etc/timezone
+
 	if [ -n "${PHP_TIMEZONE}"]; then
 		PHP_TIMEZONE="${TZ}"
 	fi
 fi
+
+echo "TZ: ${TZ}"
+echo "PHP_TIMEZONE: ${PHP_TIMEZONE}"
 
 # Enable xdebug by ENV variable (compatibility with upstream)
 if [ 0 -ne "${PHP_ENABLE_XDEBUG:-0}" ] ; then
