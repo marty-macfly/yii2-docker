@@ -8,6 +8,8 @@ RUN chgrp 0 /etc/timezone /etc \
     && chmod g=u /etc/timezone /etc
 # Apache - Fix upstream link error
 RUN ([ -d /var/www/html ] && rm -rf /var/www/html && ln -s /app/web/ /var/www/html) || true
+# Apache - enable rewrite
+RUN a2enmod rewrite
 # Apache - remoteip module
 RUN a2enmod remoteip
 RUN sed -i 's/%h/%a/g' /etc/apache2/apache2.conf
@@ -21,8 +23,6 @@ RUN sed -i "s/^ServerTokens OS$/ServerTokens Prod/g" /etc/apache2/conf-available
 # Apache - Avoid warning at startup
 RUN echo "ServerName __default__" > /etc/apache2/conf-available/servername.conf \
     && a2enconf servername
-# Apache - enable rewrite
-RUN a2enconf rewrite
 # Apache- Prepare to be run as non root user
 RUN mkdir -p /var/lock/apache2 \
     && chgrp -R 0 /run /var/lock/apache2 /var/log/apache2 \
