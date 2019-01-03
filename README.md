@@ -80,6 +80,10 @@ PHP_ENABLE_EXTENSION=gd,exif
 * **REMOTE_IP_TRUSTED_PROXY**: Set `RemoteIPtrustedProxy` directive of the [remote_ip module](https://httpd.apache.org/docs/trunk/mod/mod_remoteip.html) (default: `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16`)
 * **REMOTE_IP_INTERNAL_PROXY**: Set `RemoteIPInternalProxy` directive of the [remote_ip module](https://httpd.apache.org/docs/trunk/mod/mod_remoteip.html) (default: `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16`)
 
+# Cron configuration
+
+* **CRON_DEBUG**: Enable debug mode of supercronic.s
+
 # PHP configuration
 
 You can override some PHP configuration setting by defining the following environment variable:

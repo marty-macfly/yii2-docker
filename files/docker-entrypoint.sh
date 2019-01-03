@@ -98,7 +98,10 @@ elif [ "${1}" = "cron" ]; then
 	if [ -d "/etc/cron.d" ]; then
 		cat /etc/cron.d/* > /etc/crontab
 	fi
-	exec /usr/local/bin/supercronic /etc/crontab
+	if [ -n "${CRON_DEBUG}" -a "${CRON_DEBUG}" = "true" ] || [ "${YII_ENV}" = "dev" ]; then
+		args="-debug"
+	fi
+	exec /usr/local/bin/supercronic ${args} /etc/crontab
 else
 	exec "apache2-foreground"
 fi
