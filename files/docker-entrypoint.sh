@@ -96,9 +96,11 @@ if [ "${1}" = "yii" ]; then
 elif [ "${1}" = "cron" ]; then
 	# Create a single file with all the crontab
 	if [ -d "/etc/cron.d" ]; then
-		cat /etc/cron.d/* > /etc/crontab
+		# Remove the user name and merge into one file
+		sed -r 's/(\s+)?\S+//6' /etc/cron.d/* > /etc/crontab
 	fi
 	if [ -n "${CRON_DEBUG}" -a "${CRON_DEBUG}" = "true" ] || [ "${YII_ENV}" = "dev" ]; then
+		echo "Cron debug enabled"
 		args="-debug"
 	fi
 	exec /usr/local/bin/supercronic ${args} /etc/crontab
