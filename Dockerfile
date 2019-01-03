@@ -100,5 +100,5 @@ COPY files/docker-entrypoint.sh /
 COPY files/wait-for-it.sh /
 RUN chmod a+rx /*.sh
 WORKDIR /app
-#USER 1000
+USER 1000
 ENTRYPOINT ["/docker-entrypoint.sh"]
