@@ -82,7 +82,7 @@ PHP_ENABLE_EXTENSION=gd,exif
 
 # Cron configuration
 
-* **CRON_DEBUG**: Enable debug mode of supercronic.s
+* **CRON_DEBUG**: Enable debug mode of [supercronic](https://github.com/aptible/supercronic).
 
 # PHP configuration
 
