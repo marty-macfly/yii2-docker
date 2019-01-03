@@ -94,7 +94,11 @@ fi
 if [ "${1}" = "yii" ]; then
 	exec php ${@}
 elif [ "${1}" = "cron" ]; then
-	exec /usr/local/bin/supercronic /etc/cron.d/*
+	# Create a single file with all the crontab
+	if [ -d "/etc/cron.d" ]; then
+		cat /etc/cron.d/* > /etc/crontab
+	fi
+	exec /usr/local/bin/supercronic /etc/crontab
 else
 	exec "apache2-foreground"
 fi
