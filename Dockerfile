@@ -6,6 +6,10 @@ RUN apt-get -y update \
 ENV TZ Europe/Paris
 RUN chgrp 0 /etc/timezone /etc \
     && chmod g=u /etc/timezone /etc
+# System - Define HOME directory
+ENV HOME /root
+RUN chgrp -R 0 ${HOME} \
+    && chmod -R g=u ${HOME}
 # Apache - Fix upstream link error
 RUN ([ -d /var/www/html ] && rm -rf /var/www/html && ln -s /app/web/ /var/www/html) || true
 # Apache - remoteip module
@@ -48,9 +52,9 @@ RUN curl -sSL "https://github.com/aptible/supercronic/releases/download/v${SUPER
  && chmod a+rx "/usr/local/bin/supercronic"
 # Composer - make it usable by everyone
 RUN chmod a+rx "/usr/local/bin/composer" \
-    && mkdir -p /.composer \
-    && chgrp -R 0 /.composer \
-    && chmod -R g=u /.composer
+    && mkdir -p ${HOME}/.composer \
+    && chgrp -R 0 ${HOME}/.composer \
+    && chmod -R g=u ${HOME}/.composer
 # Php - Cache & Session support
 RUN pecl install redis && docker-php-ext-enable redis
 # Php - Yaml
