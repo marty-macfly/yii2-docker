@@ -36,7 +36,8 @@ EXPOSE 8080 8443
 # Apache - default virtualhost configuration
 COPY files/000-default.conf /etc/apache2/sites-available/000-default.conf
 # Cron - Create log directory
-RUN mkdir -p /etc/cron.d /var/log/cron \        
+RUN mkdir -p /etc/cron.d /var/log/cron \ 
+    && rm -rf /etc/cron.daily \       
     && chgrp -R 0 /etc/cron.d /var/log/cron \
     && chmod -R g=u /etc/cron.d /var/log/cron
 # Cron - use supercronic (https://github.com/aptible/supercronic)
