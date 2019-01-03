@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Set default username if not override
 USER_NAME="${USER_NAME:-default}"
@@ -7,10 +7,10 @@ USER_NAME="${USER_NAME:-default}"
 if ! whoami &> /dev/null; then
   if [ -w /etc/passwd ]; then
     echo "${USER_NAME}:x:$(id -u):0:${USER_NAME} user:${HOME}:/sbin/bash" >> /etc/passwd
-	echo "USER_NAME: ${USER_NAME}"
   fi
 fi
 
+echo "USER_NAME: $(id)"
 APACHE_RUN_USER="${USER_NAME}"
 echo "APACHE_RUN_USER: ${APACHE_RUN_USER}"
 
@@ -41,18 +41,25 @@ if [ -n "${PHP_ENABLE_EXTENSION}" ] ; then
 		fi
 		echo ""
 	done
+else
+	echo "PHP_ENABLE_EXTENSION: no extension to load at runtime"
 fi
 
 # Optimise opcache.max_accelerated_files, if settings is too small
 nb_files=$(find . -type f -name '*.php' -print | wc -l)
-if [ ${nb_files} -gt ${PHP_OPCACHE_MAX_ACCELERATED_FILES} ]; then
+if [ ${nb_files} -gt ${PHP_OPCACHE_MAX_ACCELERATED_FILES:-0} ]; then
 	echo "Change PHP_OPCACHE_MAX_ACCELERATED_FILES from ${PHP_OPCACHE_MAX_ACCELERATED_FILES} to ${nb_files}"
 	export PHP_OPCACHE_MAX_ACCELERATED_FILES=${nb_files}
 fi
 
+echo "PHP_OPCACHE_MAX_ACCELERATED_FILES: ${PHP_OPCACHE_MAX_ACCELERATED_FILES:-none}"
+
 # Install dev dependencies of composer for test and dev, or if composer was not run before
 if [ "${YII_ENV}" = "test" -o "${YII_ENV}" = "dev" ] || [ -f composer.json -a -z "$(ls -A vendor 2>/dev/null)" ]; then
+	echo "Running composer update"
     composer update
+else
+	echo "Composer update skipped (no YII_ENV: test/dev or no 'composer.json' file or 'vendor' directory already present"
 fi
 
 # Loop on WAIT_FOR_IT_LIST
@@ -60,16 +67,22 @@ if [ -n "${WAIT_FOR_IT_LIST}" ]; then
 	for hostport in $(echo "${WAIT_FOR_IT_LIST}" | sed -e 's/,/ /g'); do
 		/wait-for-it.sh -s -t 0 ${hostport}
 	done
+else
+	echo "No WAIT_FOR_IT_LIST"
 fi
 
 # Do database migration
 if [ -n "${YII_DB_MIGRATE}" -a "${YII_DB_MIGRATE}" = "true" ]; then
 	php yii migrate/up --interactive=0
+else
+	echo "YII_DB_MIGRATE: not set to 'true'"
 fi
 
 # Do rbac migration (add/Update/delete rbac permissions/roles)
 if [ -n "${YII_RBAC_MIGRATE}" -a "${YII_RBAC_MIGRATE}" = "true" ]; then
     php yii rbac/load rbac.yml
+else
+	echo "YII_RBAC_MIGRATE: not set to 'true'"
 fi
 
 if [ -n "${1}" ]; then

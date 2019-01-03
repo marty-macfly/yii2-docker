@@ -8,21 +8,22 @@ RUN chgrp 0 /etc/timezone /etc \
     && chmod g=u /etc/timezone /etc
 # Apache - Fix upstream link error
 RUN ([ -d /var/www/html ] && rm -rf /var/www/html && ln -s /app/web/ /var/www/html) || true
-# Apache - enable rewrite
-RUN a2enmod rewrite
 # Apache - remoteip module
 RUN a2enmod remoteip
 RUN sed -i 's/%h/%a/g' /etc/apache2/apache2.conf
 ENV REMOTE_IP_HEADER X-Forwarded-For
 ENV REMOTE_IP_TRUSTED_PROXY 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
 ENV REMOTE_IP_INTERNAL_PROXY 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+RUN echo 'RemoteIPHeader ${REMOTE_IP_HEADER}\nRemoteIPTrustedProxy ${REMOTE_IP_TRUSTED_PROXY}\nRemoteIPInternalProxy ${REMOTE_IP_INTERNAL_PROXY}' > /etc/apache2/conf-available/remoteip.conf \
+    && a2enconf remoteip
 # Apache - Disable useless configuration
-RUN a2disconf serve-cgi-bin other-vhosts-access-log
+RUN a2disconf serve-cgi-bin
 # Apache - Hide version
-RUN sed -i "s/^ServerTokens OS$/ServerTokens Prod/g" /etc/apache2/conf-available/security.conf
+RUN sed -i 's/^ServerTokens OS$/ServerTokens Prod/g' /etc/apache2/conf-available/security.conf
 # Apache - Avoid warning at startup
-RUN echo "ServerName __default__" > /etc/apache2/conf-available/servername.conf \
+RUN echo 'ServerName __default__' > /etc/apache2/conf-available/servername.conf \
     && a2enconf servername
+RUN sed -i -e 's/vhost_combined/combined/g' -e 's/other_vhosts_access/access/g' /etc/apache2/conf-available/other-vhosts-access-log.conf
 # Apache- Prepare to be run as non root user
 RUN mkdir -p /var/lock/apache2 \
     && chgrp -R 0 /run /var/lock/apache2 /var/log/apache2 \
@@ -99,5 +100,5 @@ COPY files/docker-entrypoint.sh /
 COPY files/wait-for-it.sh /
 RUN chmod a+rx /*.sh
 WORKDIR /app
-USER 1000
+#USER 1000
 ENTRYPOINT ["/docker-entrypoint.sh"]
