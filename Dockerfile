@@ -1,6 +1,6 @@
 FROM yiisoftware/yii2-php:7.2-apache
 ARG USER=1000
-ARG HOME=/root
+ARG HOME=/home/user
 # System - Update embded package
 RUN apt-get -y update \
     && apt-get -y upgrade
@@ -10,7 +10,8 @@ RUN chgrp 0 /etc/timezone /etc \
     && chmod g=u /etc/timezone /etc
 # System - Define HOME directory
 ENV HOME ${HOME}
-RUN chgrp -R 0 ${HOME} \
+RUN mkdir -p ${HOME} \
+    && chgrp -R 0 ${HOME} \
     && chmod -R g=u ${HOME}
 # Apache - Fix upstream link error
 RUN ([ -d /var/www/html ] && rm -rf /var/www/html && ln -s /app/web/ /var/www/html) || true
