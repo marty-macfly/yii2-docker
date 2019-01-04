@@ -57,7 +57,7 @@ echo "PHP_OPCACHE_MAX_ACCELERATED_FILES: ${PHP_OPCACHE_MAX_ACCELERATED_FILES:-no
 # Install dev dependencies of composer for test and dev, or if composer was not run before
 if [ "${YII_ENV}" = "test" -o "${YII_ENV}" = "dev" ] || [ -f composer.json -a -z "$(ls -A vendor 2>/dev/null)" ]; then
 	echo "Running composer update"
-    composer update
+    composer update && rm -rf ${HOME}/.composer/cache
 else
 	echo "Composer update skipped (no YII_ENV: test/dev or no 'composer.json' file or 'vendor' directory already present"
 fi
