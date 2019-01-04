@@ -1,4 +1,6 @@
 FROM yiisoftware/yii2-php:7.2-apache
+ARG USER=1000
+ARG HOME=/root
 # System - Update embded package
 RUN apt-get -y update \
     && apt-get -y upgrade
@@ -7,7 +9,7 @@ ENV TZ Europe/Paris
 RUN chgrp 0 /etc/timezone /etc \
     && chmod g=u /etc/timezone /etc
 # System - Define HOME directory
-ENV HOME /root
+ENV HOME ${HOME}
 RUN chgrp -R 0 ${HOME} \
     && chmod -R g=u ${HOME}
 # Apache - Fix upstream link error
@@ -51,10 +53,7 @@ RUN curl -sSL "https://github.com/aptible/supercronic/releases/download/v${SUPER
  && echo "${SUPERCRONIC_SHA1SUM}" "/usr/local/bin/supercronic" | sha1sum -c - \
  && chmod a+rx "/usr/local/bin/supercronic"
 # Composer - make it usable by everyone
-RUN chmod a+rx "/usr/local/bin/composer" \
-    && mkdir -p ${HOME}/.composer \
-    && chgrp -R 0 ${HOME}/.composer \
-    && chmod -R g=u ${HOME}/.composer
+RUN chmod a+rx "/usr/local/bin/composer"
 # Php - Cache & Session support
 RUN pecl install redis && docker-php-ext-enable redis
 # Php - Yaml
@@ -105,5 +104,5 @@ COPY files/docker-entrypoint.sh /
 COPY files/wait-for-it.sh /
 RUN chmod a+rx /*.sh
 WORKDIR /app
-USER 1000
+USER ${USER}
 ENTRYPOINT ["/docker-entrypoint.sh"]
