@@ -5,7 +5,7 @@ Inherit official [yii2-docker](https://github.com/yiisoft/yii2-docker) and based
 Change compare to upstream:
 
 * Bind on port `8080` instead of `80`
-* Doesn't run as root compatible with openshift security policy
+* Doesn't run as root compatible with [openshift security policy](https://docs.openshift.com/container-platform/3.11/creating_images/guidelines.html)
  
 # Entry-point
 
