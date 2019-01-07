@@ -1,20 +1,23 @@
 FROM yiisoftware/yii2-php:7.2-apache
-ARG USER=1000
+ARG USER=2000
+ARG APP_DIR=/app
 ARG HOME=/home/user
+ARG TZ=Europe/Paris
+ARG YII_ENV
+# System - Application path
+ENV APP_DIR ${APP_DIR}
 # System - Update embded package
 RUN apt-get -y update \
     && apt-get -y upgrade
 # System - Set default timezone
-ENV TZ Europe/Paris
-RUN chgrp 0 /etc/timezone /etc \
-    && chmod g=u /etc/timezone /etc
+ENV TZ ${TZ}
 # System - Define HOME directory
 ENV HOME ${HOME}
 RUN mkdir -p ${HOME} \
     && chgrp -R 0 ${HOME} \
     && chmod -R g=u ${HOME}
 # Apache - Fix upstream link error
-RUN ([ -d /var/www/html ] && rm -rf /var/www/html && ln -s /app/web/ /var/www/html) || true
+RUN ([ -d /var/www/html ] && rm -rf /var/www/html && ln -s ${APP_DIR}/web/ /var/www/html) || true
 # Apache - remoteip module
 RUN a2enmod remoteip
 RUN sed -i 's/%h/%a/g' /etc/apache2/apache2.conf
@@ -42,11 +45,6 @@ RUN sed -i -e 's/80/8080/g' -e 's/443/8443/g' /etc/apache2/ports.conf
 EXPOSE 8080 8443
 # Apache - default virtualhost configuration
 COPY files/000-default.conf /etc/apache2/sites-available/000-default.conf
-# Cron - Create log directory
-RUN mkdir -p /etc/cron.d /var/log/cron \ 
-    && rm -rf /etc/cron.daily \       
-    && chgrp -R 0 /etc/cron.d /var/log/cron \
-    && chmod -R g=u /etc/cron.d /var/log/cron
 # Cron - use supercronic (https://github.com/aptible/supercronic)
 ENV SUPERCRONIC_VERSION=0.1.6
 ENV SUPERCRONIC_SHA1SUM=c3b78d342e5413ad39092fd3cfc083a85f5e2b75
@@ -98,12 +96,11 @@ ENV PHP_OPCACHE_ENABLE_CLI 1
 ENV PHP_OPCACHE_MEMORY 64
 ENV PHP_OPCACHE_VALIDATE_TIMESTAMP 0
 ENV PHP_OPCACHE_REVALIDATE_FREQ 600
-ENV PHP_OPCACHE_MAX_ACCELERATED_FILES 7000
 # System - Clean apt
 RUN apt-get autoremove -y
-COPY files/docker-entrypoint.sh /
-COPY files/wait-for-it.sh /
-RUN chmod a+rx /*.sh
-WORKDIR /app
+COPY files/*.sh /docker-bin/
+RUN chmod a+rx /docker-bin/*.sh \
+    && /docker-bin/docker-build.sh
+WORKDIR ${APP_DIR}
 USER ${USER}
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-bin/docker-entrypoint.sh"]
