@@ -1,11 +1,18 @@
 #!/bin/bash
 
+if [ -f "/etc/environment" ]; then
+    echo "Source /etc/environment"
+    . /etc/environment
+fi
+
+basedir=$(dirname $0)
+
 # Set default username if not override
 USER_NAME="${USER_NAME:-default}"
 
 # Insert username into pwd
 if ! whoami &> /dev/null; then
-  if [ -w /etc/passwd ]; then
+  if [ -w "/etc/passwd" ]; then
     echo "${USER_NAME}:x:$(id -u):0:${USER_NAME} user:${HOME}:/sbin/bash" >> /etc/passwd
   fi
 fi
@@ -14,17 +21,21 @@ echo "USER_NAME: $(id)"
 APACHE_RUN_USER="${USER_NAME}"
 echo "APACHE_RUN_USER: ${APACHE_RUN_USER}"
 
-# Set the proper timezone
-if [ -n "${TZ}" ]; then
-	ln -snf "/usr/share/zoneinfo/$TZ" "/etc/localtime"
-	echo "$TZ" > /etc/timezone
-	if [ -n "${PHP_TIMEZONE}"]; then
-		PHP_TIMEZONE="${TZ}"
-	fi
+if [ -n "${PHP_TIMEZONE}"]; then
+	PHP_TIMEZONE="${TZ}"
 fi
 
 echo "TZ: ${TZ}"
 echo "PHP_TIMEZONE: ${PHP_TIMEZONE}"
+
+# Loop on WAIT_FOR_IT_LIST
+if [ -n "${WAIT_FOR_IT_LIST}" ]; then
+	for hostport in $(echo "${WAIT_FOR_IT_LIST}" | sed -e 's/,/ /g'); do
+		${basedir}/wait-for-it.sh -s -t 0 ${hostport}
+	done
+else
+	echo "No WAIT_FOR_IT_LIST"
+fi
 
 # Enable xdebug by ENV variable (compatibility with upstream)
 if [ 0 -ne "${PHP_ENABLE_XDEBUG:-0}" ] ; then
@@ -45,31 +56,13 @@ else
 	echo "PHP_ENABLE_EXTENSION: no extension to load at runtime"
 fi
 
-# Optimise opcache.max_accelerated_files, if settings is too small
-nb_files=$(find . -type f -name '*.php' -print | wc -l)
-if [ ${nb_files} -gt ${PHP_OPCACHE_MAX_ACCELERATED_FILES:-0} ]; then
-	echo "Change PHP_OPCACHE_MAX_ACCELERATED_FILES from ${PHP_OPCACHE_MAX_ACCELERATED_FILES} to ${nb_files}"
-	export PHP_OPCACHE_MAX_ACCELERATED_FILES=${nb_files}
+# Optimise opcache.max_accelerated_files, if not set
+if [ -z "${PHP_OPCACHE_MAX_ACCELERATED_FILES}" ]; then
+	echo "Set PHP_OPCACHE_MAX_ACCELERATED_FILES to ${PHP_OPCACHE_MAX_ACCELERATED_FILES_DEFAULT:-7000}"
+	export PHP_OPCACHE_MAX_ACCELERATED_FILES=${PHP_OPCACHE_MAX_ACCELERATED_FILES_DEFAULT:-7000}
 fi
 
 echo "PHP_OPCACHE_MAX_ACCELERATED_FILES: ${PHP_OPCACHE_MAX_ACCELERATED_FILES:-none}"
-
-# Install dev dependencies of composer for test and dev, or if composer was not run before
-if [ "${YII_ENV}" = "test" -o "${YII_ENV}" = "dev" ] || [ -f composer.json -a -z "$(ls -A vendor 2>/dev/null)" ]; then
-	echo "Running composer update"
-    composer update && rm -rf ${HOME}/.composer/cache
-else
-	echo "Composer update skipped (no YII_ENV: test/dev or no 'composer.json' file or 'vendor' directory already present"
-fi
-
-# Loop on WAIT_FOR_IT_LIST
-if [ -n "${WAIT_FOR_IT_LIST}" ]; then
-	for hostport in $(echo "${WAIT_FOR_IT_LIST}" | sed -e 's/,/ /g'); do
-		/wait-for-it.sh -s -t 0 ${hostport}
-	done
-else
-	echo "No WAIT_FOR_IT_LIST"
-fi
 
 # Do database migration
 if [ -n "${YII_DB_MIGRATE}" -a "${YII_DB_MIGRATE}" = "true" ]; then
@@ -94,16 +87,13 @@ fi
 if [ "${1}" = "yii" ]; then
 	exec php ${@}
 elif [ "${1}" = "cron" ]; then
-	# Create a single file with all the crontab
-	if [ -d "/etc/cron.d" ]; then
-		# Remove the user name and merge into one file
-		sed -r 's/(\s+)?\S+//6' /etc/cron.d/* > /etc/crontab
-	fi
 	if [ -n "${CRON_DEBUG}" -a "${CRON_DEBUG}" = "true" ] || [ "${YII_ENV}" = "dev" ]; then
 		echo "Cron debug enabled"
 		args="-debug"
 	fi
 	exec /usr/local/bin/supercronic ${args} /etc/crontab
+elif [ "${1}" = "bash" -o "${1}" = "php" ]; then
+	exec ${@}
 else
 	exec "apache2-foreground"
 fi
