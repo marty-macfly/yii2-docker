@@ -13,7 +13,7 @@ Entry-point script can run:
 * start **Apache HTTPD** server (default behavior)
 * **cron daemon** with environment variable properly setup
 * [Yii CLI application](https://www.yiiframework.com/doc/guide/2.0/en/tutorial-console) with your custom arguments
-* `bash` or `php` command are also allowed
+* `bash`, `php` and `composer` command are also allowed
 
 The entry-point script is also providing those helpers:
 
