@@ -92,7 +92,7 @@ elif [ "${1}" = "cron" ]; then
 		args="-debug"
 	fi
 	exec /usr/local/bin/supercronic ${args} /etc/crontab
-elif [ "${1}" = "bash" -o "${1}" = "php" ]; then
+elif [ "${1}" = "bash" -o "${1}" = "php" -o "${1}" = "composer" ]; then
 	exec ${@}
 else
 	exec "apache2-foreground"
