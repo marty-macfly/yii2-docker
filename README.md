@@ -13,6 +13,7 @@ Entry-point script can run:
 * start **Apache HTTPD** server (default behavior)
 * **cron daemon** with environment variable properly setup
 * [Yii CLI application](https://www.yiiframework.com/doc/guide/2.0/en/tutorial-console) with your custom arguments
+* `bash` or `php` command are also allowed
 
 The entry-point script is also providing those helpers:
 
@@ -63,32 +64,51 @@ If you want for your specific application to enable one of them just do:
 docker-php-ext-enable extension-name
 ```
 
-## Enable PHP extensions/modules at runtime
+## Image Configuration at buildtime
+
+With docker build arguments.
+
+### System configuration
+
+* **TZ**: System timezone will by application for cron and logs (default: `Europe/Paris`)
+
+### Cron configuration
+
+We're using [supercronic](https://github.com/aptible/supercronic) as cron dameon. You can put your cronfile in:
+*  `/etc/cron.d/` in the normal cron format '`minute` `hour` `day of month` `month` `day of week` `user` (NB: user will not be taken in consideration in our cron is not run as root)
+* or create the file `/etc/crontab` in [supercronic supported format](https://github.com/gorhill/cronexpr).
+
+### Yii configuration
+
+* **YII_ENV**: [Environment constants](http://www.yiiframework.com/doc-2.0/guide-concept-configurations.html#environment-constants) can be `prod`, `dev`, `test` (default: `prod`). In `test` and `dev` composer development dependencies are installed (`gii`, `codeception`, ...) at buildtime.
+
+## Image Configuration at runtime
+
+With environment variables.
+
+### Enable PHP extensions/modules
 
 You can enable extension at runtime with the environment variable `PHP_ENABLE_EXTENSION`, you can provide a list of extension by separating them with with comma (`,`).
 
 ```
 PHP_ENABLE_EXTENSION=gd,exif
 ```
-# System configuration
 
-* **TZ**: System timezone will by application for cron and logs (default: `Europe/Paris`)
-
-# Apache HTTPD configuration
+### Apache HTTPD configuration
 
 * **REMOTE_IP_HEADER**: Set `RemoteIPHeader` directive of the [remote_ip module](https://httpd.apache.org/docs/trunk/mod/mod_remoteip.html) (default: `X-Forwarded-For`)
 * **REMOTE_IP_TRUSTED_PROXY**: Set `RemoteIPtrustedProxy` directive of the [remote_ip module](https://httpd.apache.org/docs/trunk/mod/mod_remoteip.html) (default: `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16`)
 * **REMOTE_IP_INTERNAL_PROXY**: Set `RemoteIPInternalProxy` directive of the [remote_ip module](https://httpd.apache.org/docs/trunk/mod/mod_remoteip.html) (default: `10.0.0.0/8 172.16.0.0/12 192.168.0.0/16`)
 
-# Cron configuration
+### Cron configuration
 
 * **CRON_DEBUG**: Enable debug mode of [supercronic](https://github.com/aptible/supercronic).
 
-# PHP configuration
+### PHP configuration
 
 You can override some PHP configuration setting by defining the following environment variable:
 
-## General confguration
+#### General confguration
 
 * **PHP_TIMEZONE**: [date.timezone](http://php.net/manual/en/datetime.configuration.php#ini.date.timezone) (default: `$TZ`)
 * **PHP_UPLOAD_MAX_FILESIZE**: [upload_max_filesize](http://php.net/manual/en/ini.core.php#ini.upload-max-filesize) (default: `2m`)
@@ -98,7 +118,7 @@ You can override some PHP configuration setting by defining the following enviro
 * **PHP_REALPATH_CACHE_SIZE**: [realpath_cache_size](http://php.net/manual/en/ini.core.php#ini.realpath-cache-size) (default: `256k`)
 * **PHP_REALPATH_CACHE_TTL**: [realpath_cache_ttl](http://php.net/manual/en/ini.core.php#ini.realpath-cache-ttl) (default: `3600`)
 
-## Opcache configuration
+#### Opcache configuration
 
 * **PHP_OPCACHE_ENABLE**: [opcache.enable](http://php.net/manual/en/opcache.configuration.php#ini.opcache.enable) enable Opcache (default: `1` = On)
 * **PHP_OPCACHE_ENABLE_CLI**: [opcache.enable_cli](http://php.net/manual/en/opcache.configuration.php#ini.opcache.enable-cli) enable opcache for PHP in CLI (default: `1` = On)
