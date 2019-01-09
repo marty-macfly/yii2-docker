@@ -53,6 +53,9 @@ RUN curl -sSL "https://github.com/aptible/supercronic/releases/download/v${SUPER
  && chmod a+rx "/usr/local/bin/supercronic"
 # Composer - make it usable by everyone
 RUN chmod a+rx "/usr/local/bin/composer"
+ENV DOC_GENERATE yes
+ENV DOC_DIR_SRC docs
+ENV DOC_DIR_DST doc
 # Php - Cache & Session support
 RUN pecl install redis && docker-php-ext-enable redis
 # Php - Yaml

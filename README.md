@@ -82,6 +82,14 @@ We're using [supercronic](https://github.com/aptible/supercronic) as cron dameon
 
 * **YII_ENV**: [Environment constants](http://www.yiiframework.com/doc-2.0/guide-concept-configurations.html#environment-constants) can be `prod`, `dev`, `test` (default: `prod`). In `test` and `dev` composer development dependencies are installed (`gii`, `codeception`, ...) at buildtime.
 
+### Documentation Generation configuration
+
+You can generate a static documentation with [daux.io](https://github.com/dauxio/daux.io) to be include in your application, if you've got a documentation directory inside your code.
+
+* **DOC_GENERATE**: Do you want to generate the static doc (default: `yes`).
+* **DOC_DIR_SRC**: Source directory of your documentation inside the `/app/` (default: `docs`).
+* **DOC_DIR_DST**: Destination directory of the generated documentation in `/app/web/` (default: `doc`).
+
 ## Image Configuration at runtime
 
 With environment variables.

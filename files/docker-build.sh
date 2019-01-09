@@ -69,7 +69,16 @@ if [ -f "composer.json" ]; then
     fi
     echo -e "\tRunning composer ${args}"
     composer ${args} -o update
-    rm -rf ${HOME}/.composer
+    
+    if [ "${DOC_GENERATE}" = "yes" -a -d "${DOC_DIR_SRC}" ]; then
+        composer global require daux/daux.io
+        echo "Create doc from ${DOC_DIR_SRC} to web/${DOC_DIR_DST}"
+        ~/.composer/vendor/bin/daux generate -s ${DOC_DIR_SRC} -d web/${DOC_DIR_DST}
+    fi
+    
+    if [ "${YII_ENV}" != "test" -a "${YII_ENV}" != "dev" ]; then
+        rm -rf ${HOME}/.composer
+    fi
 fi
 
 # Optimise opcache.max_accelerated_files, if settings is too small
